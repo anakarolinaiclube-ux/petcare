@@ -79,36 +79,22 @@
         <!-- Step 5: Age -->
         <div class="step" data-step="5">
             <div class="step-content">
-                <h1>Qual a idade do(a) <span class="dynamic-pet-name">pet</span>?</h1>
+                <h1>Quantos anos o(a) <span class="dynamic-pet-name">pet</span> tem?</h1>
+                <p>Isso nos ajuda a calcular o Life Score.</p>
                 <div class="age-input-container">
-                    <input type="number" id="input-pet-age" placeholder="0">
+                    <input type="number" id="input-pet-age" placeholder="0" min="0">
                     <span>anos</span>
                 </div>
             </div>
-            <div class="step-footer">
-                <button class="btn-back" onclick="prevStep()">Voltar</button>
-                <button class="btn-next" onclick="nextStep()">Continuar</button>
-            </div>
+            <button class="btn-next" onclick="nextStep()">Continuar</button>
         </div>
 
-        <!-- Step 6: City (Weather API Integration) -->
+        <!-- Step 6: Photo -->
         <div class="step" data-step="6">
             <div class="step-content">
-                <i data-lucide="map-pin" class="step-icon"></i>
-                <h1>Onde vocês moram?</h1>
-                <p>Usamos sua localização para dicas climáticas.</p>
-                <input type="text" id="input-city" placeholder="Ex: São Paulo, BR">
-            </div>
-            <div class="step-footer">
-                <button class="btn-back" onclick="prevStep()">Voltar</button>
-                <button class="btn-next" onclick="nextStep()">Continuar</button>
-            </div>
-        </div>
-
-        <!-- Step 7: Photo -->
-        <div class="step" data-step="7">
-            <div class="step-content">
                 <h1>Uma foto do(a) <span class="dynamic-pet-name">pet</span></h1>
+                <p>Deixe o app com a cara dele(a)!</p>
+                
                 <div class="photo-upload-wrapper">
                     <div class="photo-preview" id="photo-preview">
                         <i data-lucide="camera"></i>
@@ -120,27 +106,28 @@
             <div class="step-footer">
                 <button class="btn-back" onclick="prevStep()">Voltar</button>
                 <button class="btn-next" onclick="nextStep()">Finalizar</button>
+                <button class="btn-skip" onclick="nextStep()">Pular por enquanto</button>
             </div>
         </div>
 
-        <!-- Step 8: Final -->
-        <div class="step" data-step="8">
+        <!-- Step 7: Final -->
+        <div class="step" data-step="7">
             <div class="step-content center">
                 <div class="success-icon">🐾</div>
                 <h1>Tudo pronto!</h1>
-                <p>Vamos cuidar do(a) <span class="dynamic-pet-name">pet</span> juntos.</p>
+                <p>Vamos cuidar melhor do(a) <span class="dynamic-pet-name">pet</span> juntos.</p>
             </div>
             <button class="btn-primary-finish" onclick="finishOnboarding()">Começar Agora</button>
         </div>
     </div>
 
-    <!-- MAIN APP HUB -->
+    <!-- MAIN APP HUB (Hidden by default) -->
     <div id="app-screen" class="app-container" style="display: none;">
         <header class="main-header">
             <div class="user-info">
                 <div class="greeting">
                     <p>Bem-vinda de volta,</p>
-                    <h2 id="display-user-name">Ana</h2>
+                    <h2 id="display-user-name">Ana Martins</h2>
                 </div>
                 <div class="pet-profile">
                     <div class="pet-avatar">
@@ -150,26 +137,19 @@
                 </div>
             </div>
 
-            <!-- Card Dica Dinâmica com Clima -->
             <div class="daily-tip-card">
-                <div class="tip-header-weather">
-                    <span id="weather-city">Buscando clima...</span>
-                    <div id="weather-widget">
-                        <span id="weather-temp">--°C</span>
-                        <img id="weather-icon" src="" alt="" style="display:none;">
-                    </div>
-                </div>
                 <div class="tip-content">
                     <i data-lucide="sparkles"></i>
                     <div>
                         <small>Dica do dia</small>
-                        <p id="dynamic-pet-tip">Carregando dica...</p>
+                        <p>Mantenha a hidratação do <span class="dynamic-pet-name">pet</span> em dias quentes!</p>
                     </div>
                 </div>
             </div>
         </header>
 
         <main class="hub-content">
+            <!-- Seções do Hub (Mesma estrutura do código anterior) -->
             <section class="module-section">
                 <h3 class="section-title">🔥 Destaques</h3>
                 <div class="horizontal-scroll">
@@ -186,8 +166,22 @@
                 </div>
             </section>
 
+            <section class="module-section">
+                <h3 class="section-title">📦 Para o dia a dia</h3>
+                <div class="grid-layout">
+                    <div class="card glass-card" onclick="openModule('Rotina')">
+                        <i data-lucide="calendar-check"></i>
+                        <h4>Rotina</h4>
+                    </div>
+                    <div class="card glass-card" onclick="openModule('Alimentação')">
+                        <i data-lucide="utensils"></i>
+                        <h4>Alimentação</h4>
+                    </div>
+                </div>
+            </section>
+
             <section class="module-section pb-100">
-                <h3 class="section-title">📦 Dia a dia</h3>
+                <h3 class="section-title">📋 Organização</h3>
                 <div class="grid-layout">
                     <div class="card glass-card" onclick="openModule('Saúde')">
                         <i data-lucide="heart-pulse"></i>
@@ -195,24 +189,27 @@
                     </div>
                     <div class="card glass-card" onclick="openModule('Financeiro')">
                         <i data-lucide="banknote"></i>
-                        <h4>Finanças</h4>
+                        <h4>Financeiro</h4>
                     </div>
                 </div>
             </section>
         </main>
 
         <nav class="bottom-nav">
-            <button class="nav-item active"><i data-lucide="layout-grid"></i><span>Hub</span></button>
-            <button class="nav-item" onclick="resetApp()"><i data-lucide="refresh-ccw"></i><span>Reset</span></button>
+            <button class="nav-item active"><i data-lucide="layout-grid"></i><span>Início</span></button>
+            <button class="nav-item" onclick="openModule('Financeiro')"><i data-lucide="wallet"></i><span>Finanças</span></button>
+            <button class="nav-item" onclick="resetApp()"> <i data-lucide="refresh-ccw"></i><span>Reset</span></button>
         </nav>
     </div>
 
     <!-- Modal Placeholder -->
     <div id="module-modal" class="modal">
-        <div class="modal-content">
-            <i data-lucide="puzzle" class="modal-main-icon"></i>
-            <h2 id="modal-title">Módulo</h2>
-            <p>Esta funcionalidade estará disponível em breve na sua assinatura premium.</p>
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <i data-lucide="puzzle" class="modal-main-icon"></i>
+                <h2 id="modal-title">Módulo</h2>
+                <p id="modal-desc">Funcionalidade em breve.</p>
+            </div>
             <button class="btn-primary" onclick="closeModal()">Entendido</button>
         </div>
     </div>
