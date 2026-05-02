@@ -1,125 +1,128 @@
-// 1. Configurações da API
-const WEATHER_API_KEY = "SUA_CHAVE_AQUI"; // Adicione sua chave da OpenWeatherMap aqui
-const steps = [1, 2, 3, 4, 5, 5.5, 6, 7]; // Atualizado com o passo 5.5
-let currentStepIndex = 0;
-
-// 2. Atualização do userData para incluir a cidade
-const userData = {
-    tutorName: '',
-    petName: '',
-    type: '',
-    sex: '',
-    age: '',
-    city: '', // Novo campo
-    photo: ''
-};
-
-// 3. Navegação atualizada para lidar com o passo decimal
-function nextStep() {
-    if (currentStepIndex === 0) {
-        userData.tutorName = document.getElementById('input-tutor-name').value;
-        if(!userData.tutorName) return alert("Como podemos te chamar?");
-    }
-    if (currentStepIndex === 1) {
-        userData.petName = document.getElementById('input-pet-name').value;
-        if(!userData.petName) return alert("Qual o nome do seu pet?");
-        updateDynamicNames();
-    }
-    // Lógica para capturar a cidade
-    if (steps[currentStepIndex] === 5.5) {
-        userData.city = document.getElementById('input-city').value;
-        if(!userData.city) return alert("Por favor, informe sua cidade.");
-    }
-
-    if (currentStepIndex < steps.length - 1) {
-        currentStepIndex++;
-        updateStepUI();
-    }
+:root {
+    --primary-orange: #FF8C42;
+    --primary-green: #4CAF50;
+    --bg-light: #F8FAFC;
+    --text-main: #2D3436;
+    --text-muted: #636E72;
+    --glass: rgba(255, 255, 255, 0.8);
+    --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    --border-radius: 24px;
 }
 
-function prevStep() {
-    if (currentStepIndex > 0) {
-        currentStepIndex--;
-        updateStepUI();
-    }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+body {
+    background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+    min-height: 100vh;
 }
 
-function updateStepUI() {
-    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-    document.querySelector(`[data-step="${steps[currentStepIndex]}"]`).classList.add('active');
-    
-    const progress = ((currentStepIndex + 1) / steps.length) * 100;
-    document.getElementById('progress-bar').style.width = `${progress}%`;
+.onboarding-container, .app-container {
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--bg-light);
+    min-height: 100vh;
+    position: relative;
+    box-shadow: 0 0 50px rgba(0,0,0,0.1);
 }
 
-// 4. INTEGRAÇÃO COM API DE CLIMA
-async function getWeatherData(city) {
-    if (!WEATHER_API_KEY || WEATHER_API_KEY === "SUA_CHAVE_AQUI") {
-        console.warn("API Key do clima não configurada.");
-        return null;
-    }
+/* ONBOARDING */
+.onboarding-container { padding: 40px 30px; display: flex; flex-direction: column; }
 
-    try {
-        const response = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=pt_br&appid=${WEATHER_API_KEY}`
-        );
-        return await response.json();
-    } catch (error) {
-        console.error("Erro ao buscar clima:", error);
-        return null;
-    }
+.progress-container {
+    width: 100%; height: 6px; background: rgba(0,0,0,0.05);
+    border-radius: 10px; margin-bottom: 50px;
 }
 
-// 5. MOTOR DE DICAS INTELIGENTES
-function updatePetTip(weather) {
-    const tipElement = document.getElementById('dynamic-pet-tip');
-    const tempElement = document.getElementById('weather-temp');
-    const iconElement = document.getElementById('weather-icon');
-    const cityElement = document.getElementById('weather-city');
-
-    if (!weather || weather.cod !== 200) {
-        tipElement.innerText = `Mantenha a rotina de exercícios de ${userData.petName} em dia!`;
-        return;
-    }
-
-    const temp = Math.round(weather.main.temp);
-    const condition = weather.weather[0].main.toLowerCase();
-    
-    // Atualiza Widget
-    tempElement.innerText = `${temp}°C`;
-    cityElement.innerText = weather.name;
-    iconElement.src = `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`;
-    iconElement.style.display = 'block';
-
-    // Lógica de Dicas
-    let tip = "";
-
-    if (temp > 28) {
-        tip = `Está calor em ${weather.name} (${temp}°C). Evite passeios no asfalto quente com o(a) ${userData.petName} e reforce a água! ☀️`;
-    } else if (temp < 15) {
-        tip = `O frio chegou! Garanta que o(a) ${userData.petName} tenha um lugar aquecido para dormir hoje. ❄️`;
-    } else if (condition.includes('rain')) {
-        tip = `Cuidado com a chuva! Se o(a) ${userData.petName} se molhar, seque-o bem para evitar fungos ou resfriados. 🌧️`;
-    } else {
-        tip = `Clima agradável em ${weather.name}! Ótimo dia para um passeio no parque com o(a) ${userData.petName}. 🐾`;
-    }
-
-    tipElement.innerText = tip;
+.progress-bar {
+    height: 100%; background: var(--primary-orange);
+    width: 12.5%; border-radius: 10px; transition: 0.4s;
 }
 
-// 6. INICIALIZAÇÃO DO APP ATUALIZADA
-function showApp(data) {
-    // ... (mesma lógica anterior de esconder onboarding e mostrar hub) ...
-    document.getElementById('onboarding-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'block';
-    
-    document.getElementById('display-user-name').innerText = data.tutorName;
-    document.getElementById('display-pet-name').innerText = data.petName;
-    
-    // Chama a API de clima ao entrar no App
-    getWeatherData(data.city).then(weather => {
-        updatePetTip(weather);
-    });
+.step { display: none; flex-direction: column; justify-content: space-between; height: 80vh; animation: fadeIn 0.4s; }
+.step.active { display: flex; }
 
-    lucide.createIcons();
+.step-icon { width: 50px!important; height: 50px!important; color: var(--primary-orange); margin-bottom: 20px; }
+.step h1 { font-size: 1.8rem; margin-bottom: 10px; line-height: 1.2; }
+
+input[type="text"], input[type="number"] {
+    width: 100%; border: 2px solid transparent; background: white;
+    padding: 20px; border-radius: 20px; font-size: 1.1rem;
+    box-shadow: var(--shadow); outline: none;
 }
+
+.option-grid { display: grid; gap: 15px; margin-top: 20px; }
+.option-btn {
+    background: white; border: 2px solid transparent; padding: 20px;
+    border-radius: 20px; display: flex; align-items: center; gap: 15px;
+    font-weight: 600; cursor: pointer; box-shadow: var(--shadow);
+}
+.option-btn.selected { border-color: var(--primary-green); background: #f0fff4; }
+
+.photo-preview {
+    width: 180px; height: 180px; background: white; border-radius: 50%;
+    margin: 20px auto; display: flex; align-items: center; justify-content: center;
+    border: 4px solid white; box-shadow: var(--shadow); overflow: hidden;
+}
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+/* APP HUB */
+.main-header { padding: 40px 24px 20px; }
+.user-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.pet-avatar { width: 55px; height: 55px; border-radius: 50%; padding: 3px; background: linear-gradient(45deg, var(--primary-orange), var(--primary-green)); }
+.pet-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #eee; }
+
+/* WEATHER WIDGET */
+.tip-header-weather {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+#weather-city { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+#weather-widget { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.6); padding: 2px 8px; border-radius: 10px; }
+#weather-temp { font-size: 0.8rem; font-weight: 700; color: var(--primary-orange); }
+#weather-icon { width: 24px; height: 24px; }
+
+.daily-tip-card {
+    background: var(--glass); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5); border-radius: 24px;
+    padding: 20px; box-shadow: var(--shadow);
+}
+.tip-content { display: flex; align-items: center; gap: 15px; }
+.tip-content i { color: var(--primary-orange); background: rgba(255,140,66,0.1); padding: 10px; border-radius: 12px; }
+
+/* HUB CONTENT */
+.module-section { padding: 25px 0 0 24px; }
+.section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; }
+.horizontal-scroll { display: flex; gap: 15px; overflow-x: auto; padding-right: 24px; scrollbar-width: none; }
+.card { cursor: pointer; transition: 0.3s; position: relative; }
+.card:active { transform: scale(0.95); }
+.featured { min-width: 200px; height: 240px; border-radius: 24px; padding: 20px; color: white; display: flex; flex-direction: column; justify-content: flex-end; }
+.featured.orange { background: linear-gradient(135deg, #FF8C42, #FFB382); }
+.featured.green { background: linear-gradient(135deg, #4CAF50, #81C784); }
+.grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-right: 24px; }
+.glass-card { background: white; padding: 20px; border-radius: 24px; text-align: center; box-shadow: var(--shadow); }
+
+/* NAV & BUTTONS */
+.bottom-nav {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    width: calc(100% - 40px); max-width: 440px; background: rgba(255,255,255,0.9);
+    height: 70px; border-radius: 35px; display: flex; justify-content: space-around; align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100;
+}
+.nav-item { border: none; background: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; }
+.nav-item.active { color: var(--primary-orange); }
+
+.btn-next, .btn-primary-finish, .btn-primary {
+    background: var(--primary-orange); color: white; border: none; padding: 18px;
+    border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%;
+}
+.btn-back { background: none; border: none; color: var(--text-muted); padding: 10px; cursor: pointer; }
+
+/* MODAL */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;
+}
+.modal-content { background: white; padding: 30px; border-radius: 30px; text-align: center; max-width: 350px; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+.pb-100 { padding-bottom: 120px; }
