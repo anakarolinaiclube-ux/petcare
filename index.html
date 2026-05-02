@@ -89,6 +89,20 @@
             <button class="btn-next" onclick="nextStep()">Continuar</button>
         </div>
 
+        <!-- Step 5.5: City (Novo) -->
+<div class="step" data-step="5.5">
+    <div class="step-content">
+        <i data-lucide="map-pin" class="step-icon"></i>
+        <h1>Onde vocês moram?</h1>
+        <p>Usamos sua localização para dar dicas baseadas no clima da sua região.</p>
+        <input type="text" id="input-city" placeholder="Ex: São Paulo, BR" autocomplete="off">
+    </div>
+    <div class="step-footer">
+        <button class="btn-back" onclick="prevStep()">Voltar</button>
+        <button class="btn-next" onclick="nextStep()">Continuar</button>
+    </div>
+</div>
+
         <!-- Step 6: Photo -->
         <div class="step" data-step="6">
             <div class="step-content">
@@ -147,6 +161,23 @@
                 </div>
             </div>
         </header>
+
+        <div class="daily-tip-card">
+    <div class="tip-header-weather">
+        <span id="weather-city">Buscando clima...</span>
+        <div id="weather-widget">
+            <span id="weather-temp">--°C</span>
+            <img id="weather-icon" src="" alt="" style="display:none;">
+        </div>
+    </div>
+    <div class="tip-content">
+        <i data-lucide="sparkles"></i>
+        <div>
+            <small>Dica do dia</small>
+            <p id="dynamic-pet-tip">Carregando dica personalizada...</p>
+        </div>
+    </div>
+</div>
 
         <main class="hub-content">
             <!-- Seções do Hub (Mesma estrutura do código anterior) -->
