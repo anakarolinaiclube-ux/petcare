@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetCare App | Premium Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="main-header">
+            <div class="user-info">
+                <div class="greeting">
+                    <p>Bem-vinda de volta,</p>
+                    <h2 id="user-name">Ana Martins</h2>
+                </div>
+                <div class="pet-profile">
+                    <div class="pet-avatar">
+                        <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=100&h=100" alt="Pet Avatar">
+                    </div>
+                    <span id="pet-name">Thor</span>
+                </div>
+            </div>
+
+            <div class="daily-tip-card">
+                <div class="tip-content">
+                    <i data-lucide="sparkles"></i>
+                    <div>
+                        <small>Dica do dia</small>
+                        <p>Mantenha a hidratação do Thor em dias quentes. Adicione cubos de gelo na água!</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content (Hub) -->
+        <main class="hub-content">
+            
+            <!-- Section: Destaques (Estilo Netflix) -->
+            <section class="module-section">
+                <h3 class="section-title">🔥 Destaques</h3>
+                <div class="horizontal-scroll">
+                    <div class="card featured orange" onclick="openModule('Viagem com Pet')">
+                        <div class="badge">Novo</div>
+                        <i data-lucide="plane" class="card-icon"></i>
+                        <div class="card-info">
+                            <h4>Viagem com Pet</h4>
+                            <p>Checklist e documentos para voos e hotéis.</p>
+                        </div>
+                    </div>
+                    <div class="card featured green" onclick="openModule('Adestre seu Pet')">
+                        <div class="badge">Popular</div>
+                        <i data-lucide="dog" class="card-icon"></i>
+                        <div class="card-info">
+                            <h4>Adestre seu Pet</h4>
+                            <p>Vídeos e comandos básicos de comportamento.</p>
+                        </div>
+                    </div>
+                    <div class="card featured danger" onclick="openModule('Emergência')">
+                        <div class="badge">Essencial</div>
+                        <i data-lucide="ambulance" class="card-icon"></i>
+                        <div class="card-info">
+                            <h4>Emergência</h4>
+                            <p>Contatos rápidos e primeiros socorros.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Dia a Dia -->
+            <section class="module-section">
+                <h3 class="section-title">📦 Para o dia a dia</h3>
+                <div class="grid-layout">
+                    <div class="card glass-card" onclick="openModule('Rotina')">
+                        <i data-lucide="calendar-check"></i>
+                        <h4>Rotina</h4>
+                        <p>Passeios e sono</p>
+                    </div>
+                    <div class="card glass-card" onclick="openModule('Humor')">
+                        <i data-lucide="smile"></i>
+                        <h4>Humor</h4>
+                        <p>Diário emocional</p>
+                    </div>
+                    <div class="card glass-card" onclick="openModule('Alimentação')">
+                        <i data-lucide="utensils"></i>
+                        <h4>Alimentação</h4>
+                        <p>Controle de peso</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Inteligência Pet -->
+            <section class="module-section">
+                <h3 class="section-title">🧠 Inteligência Pet</h3>
+                <div class="grid-layout">
+                    <div class="card glass-card" onclick="openModule('Comportamento')">
+                        <i data-lucide="brain"></i>
+                        <h4>Comportamento</h4>
+                        <p>Análise de IA</p>
+                    </div>
+                    <div class="card glass-card" onclick="openModule('Life Score')">
+                        <i data-lucide="activity"></i>
+                        <h4>Life Score</h4>
+                        <p>Saúde geral</p>
+                        <div class="badge mini">Beta</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Organização -->
+            <section class="module-section pb-100">
+                <h3 class="section-title">📋 Organização</h3>
+                <div class="grid-layout">
+                    <div class="card glass-card" onclick="openModule('Vacinas')">
+                        <i data-lucide="syringe"></i>
+                        <h4>Vacinas</h4>
+                    </div>
+                    <div class="card glass-card" onclick="openModule('Saúde')">
+                        <i data-lucide="heart-pulse"></i>
+                        <h4>Saúde</h4>
+                    </div>
+                    <div class="card glass-card" onclick="openModule('Financeiro')">
+                        <i data-lucide="banknote"></i>
+                        <h4>Financeiro</h4>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active">
+                <i data-lucide="layout-grid"></i>
+                <span>Início</span>
+            </button>
+            <button class="nav-item" onclick="openModule('Financeiro')">
+                <i data-lucide="wallet"></i>
+                <span>Finanças</span>
+            </button>
+            <button class="nav-item" onclick="openModule('Perfil')">
+                <i data-lucide="user"></i>
+                <span>Perfil</span>
+            </button>
+        </nav>
+
+        <!-- Placeholder Modal -->
+        <div id="module-modal" class="modal">
+            <div class="modal-content glass">
+                <div class="modal-header">
+                    <i data-lucide="puzzle" class="modal-main-icon"></i>
+                    <h2 id="modal-title">Módulo</h2>
+                    <p id="modal-desc">Este é um módulo premium do PetCare App.</p>
+                </div>
+                <div class="modal-body">
+                    <div class="placeholder-animation"></div>
+                    <p>Estamos preparando os detalhes para você e seu pet.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary" onclick="closeModal()">Conectar Módulo</button>
+                    <button class="btn-secondary" onclick="closeModal()">Voltar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
