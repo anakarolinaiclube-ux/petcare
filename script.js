@@ -1,59 +1,126 @@
-// Configurações Iniciais e Persistência Simples
-const config = {
-    userName: localStorage.getItem('petcare_user') || 'Ana Martins',
-    petName: localStorage.getItem('petcare_pet') || 'Thor'
+let currentStep = 1;
+const totalSteps = 7;
+const userData = {
+    tutorName: '',
+    petName: '',
+    type: '',
+    sex: '',
+    age: '',
+    photo: ''
 };
 
-// Inicialização da Interface
+// Verifica se já existe dados ao carregar
 document.addEventListener('DOMContentLoaded', () => {
-    updateUI();
+    const savedData = localStorage.getItem('petCare_data');
+    if (savedData) {
+        showApp(JSON.parse(savedData));
+    }
 });
 
-function updateUI() {
-    document.getElementById('user-name').innerText = config.userName;
-    document.getElementById('pet-name').innerText = config.petName;
-}
-
-// Lógica do Modal Placeholder
-function openModule(moduleName) {
-    const modal = document.getElementById('module-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDesc = document.getElementById('modal-desc');
-
-    modalTitle.innerText = moduleName;
+function nextStep() {
+    if (currentStep === 1) {
+        userData.tutorName = document.getElementById('input-tutor-name').value;
+        if(!userData.tutorName) return alert("Como podemos te chamar?");
+    }
     
-    // Customização de descrição baseada no módulo
-    const descriptions = {
-        'Viagem com Pet': 'Prepare as malas! Este módulo ajudará com passaportes, vacinas internacionais e checklists.',
-        'Emergência': 'Acesso imediato a veterinários 24h e guia de primeiros socorros rápido.',
-        'Financeiro': 'Controle todos os gastos com ração, consultas e mimos em um só lugar.',
-        'Adestre seu Pet': 'Transforme o comportamento do seu melhor amigo com trilhas de treinamento.'
-    };
+    if (currentStep === 2) {
+        userData.petName = document.getElementById('input-pet-name').value;
+        if(!userData.petName) return alert("Qual o nome do seu pet?");
+        updateDynamicNames();
+    }
 
-    modalDesc.innerText = descriptions[moduleName] || `O módulo "${moduleName}" está sendo preparado para a próxima atualização premium.`;
-    
-    modal.style.display = 'flex';
-    
-    // Feedback tátil simples (console)
-    console.log(`Log: Tentativa de acesso ao módulo [ID: ${moduleName.toLowerCase().replace(/\s/g, '_')}]`);
-}
+    if (currentStep === 5) {
+        userData.age = document.getElementById('input-pet-age').value;
+    }
 
-function closeModal() {
-    const modal = document.getElementById('module-modal');
-    modal.style.display = 'none';
-}
-
-// Fechar modal ao clicar fora dele
-window.onclick = function(event) {
-    const modal = document.getElementById('module-modal');
-    if (event.target == modal) {
-        closeModal();
+    if (currentStep < totalSteps) {
+        currentStep++;
+        updateStepUI();
     }
 }
 
-// Exemplo de como salvar dados (Pode ser chamado via console ou futura tela de perfil)
-function saveUserData(newName, newPet) {
-    localStorage.setItem('petcare_user', newName);
-    localStorage.setItem('petcare_pet', newPet);
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        updateStepUI();
+    }
+}
+
+function updateStepUI() {
+    // Esconde todos os passos
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    // Mostra o passo atual
+    document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+    // Atualiza barra de progresso
+    const progress = (currentStep / totalSteps) * 100;
+    document.getElementById('progress-bar').style.width = `${progress}%`;
+}
+
+function selectOption(field, value, element) {
+    userData[field] = value;
+    
+    // UI Feedback
+    const parent = element.parentElement;
+    parent.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+    element.classList.add('selected');
+
+    // Auto-advance em seleções de botão
+    setTimeout(nextStep, 300);
+}
+
+function updateDynamicNames() {
+    document.querySelectorAll('.dynamic-pet-name').forEach(el => {
+        el.innerText = userData.petName;
+    });
+}
+
+// Handle Photo Upload
+document.getElementById('pet-photo-input').addEventListener('change', function(e) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        userData.photo = reader.result;
+        const preview = document.getElementById('photo-preview');
+        preview.innerHTML = `<img src="${reader.result}">`;
+    }
+    reader.readAsDataURL(e.target.files[0]);
+});
+
+function finishOnboarding() {
+    localStorage.setItem('petCare_data', JSON.stringify(userData));
+    showApp(userData);
+}
+
+function showApp(data) {
+    document.getElementById('onboarding-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    
+    // Atualiza o Hub com dados reais
+    document.getElementById('display-user-name').innerText = data.tutorName;
+    document.getElementById('display-pet-name').innerText = data.petName;
+    
+    const petImg = document.getElementById('display-pet-photo');
+    if(data.photo) {
+        petImg.src = data.photo;
+    } else {
+        petImg.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=100&h=100&auto=format&fit=crop';
+    }
+    
+    updateDynamicNames();
+    lucide.createIcons();
+}
+
+// Funções do Hub (Modal)
+function openModule(name) {
+    document.getElementById('modal-title').innerText = name;
+    document.getElementById('module-modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('module-modal').style.display = 'none';
+}
+
+// Função de Reset (Para testes)
+function resetApp() {
+    localStorage.clear();
     location.reload();
 }
