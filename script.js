@@ -1,5 +1,5 @@
 // Substitua pela sua chave da OpenWeatherMap para funcionar o clima real
-const API_KEY = "SUA_CHAVE_AQUI"; 
+const API_KEY = "9b6a494a664d8bda6c455e15dff42127"; 
 
 let currentStep = 1;
 const totalSteps = 8;
@@ -82,7 +82,7 @@ document.getElementById('pet-photo-input').addEventListener('change', function(e
 
 // 4. Clima e Dicas Inteligentes
 async function fetchWeather(city) {
-    if (!API_KEY || API_KEY === "SUA_CHAVE_AQUI") return null;
+    if (!API_KEY || API_KEY === "9b6a494a664d8bda6c455e15dff42127") return null;
     try {
         const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=pt_br&appid=${API_KEY}`);
         return await res.json();
