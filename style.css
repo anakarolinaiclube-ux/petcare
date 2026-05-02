@@ -1,462 +1,125 @@
-/* 
-   PETCARE APP - CSS PREMIUM CONSOLIDADO
-   Estilo: Glassmorphism / Modern Mobile-First
-   Paleta: Laranja (Energia) + Verde (Cuidado)
-*/
+// 1. Configurações da API
+const WEATHER_API_KEY = "SUA_CHAVE_AQUI"; // Adicione sua chave da OpenWeatherMap aqui
+const steps = [1, 2, 3, 4, 5, 5.5, 6, 7]; // Atualizado com o passo 5.5
+let currentStepIndex = 0;
 
-:root {
-    --primary-orange: #FF8C42;
-    --primary-orange-light: #FFB382;
-    --primary-green: #4CAF50;
-    --primary-green-light: #81C784;
-    --danger: #FF5252;
-    --bg-light: #F8FAFC;
-    --text-main: #2D3436;
-    --text-muted: #636E72;
-    --glass-bg: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --shadow: 0 10px 30px rgba(0,0,0,0.08);
-    --border-radius-lg: 32px;
-    --border-radius-md: 24px;
-    --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+// 2. Atualização do userData para incluir a cidade
+const userData = {
+    tutorName: '',
+    petName: '',
+    type: '',
+    sex: '',
+    age: '',
+    city: '', // Novo campo
+    photo: ''
+};
+
+// 3. Navegação atualizada para lidar com o passo decimal
+function nextStep() {
+    if (currentStepIndex === 0) {
+        userData.tutorName = document.getElementById('input-tutor-name').value;
+        if(!userData.tutorName) return alert("Como podemos te chamar?");
+    }
+    if (currentStepIndex === 1) {
+        userData.petName = document.getElementById('input-pet-name').value;
+        if(!userData.petName) return alert("Qual o nome do seu pet?");
+        updateDynamicNames();
+    }
+    // Lógica para capturar a cidade
+    if (steps[currentStepIndex] === 5.5) {
+        userData.city = document.getElementById('input-city').value;
+        if(!userData.city) return alert("Por favor, informe sua cidade.");
+    }
+
+    if (currentStepIndex < steps.length - 1) {
+        currentStepIndex++;
+        updateStepUI();
+    }
 }
 
-/* 1. RESET & BASICS */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-    -webkit-tap-highlight-color: transparent;
+function prevStep() {
+    if (currentStepIndex > 0) {
+        currentStepIndex--;
+        updateStepUI();
+    }
 }
 
-body {
-    background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-    background-attachment: fixed;
-    color: var(--text-main);
-    overflow-x: hidden;
+function updateStepUI() {
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    document.querySelector(`[data-step="${steps[currentStepIndex]}"]`).classList.add('active');
+    
+    const progress = ((currentStepIndex + 1) / steps.length) * 100;
+    document.getElementById('progress-bar').style.width = `${progress}%`;
 }
 
-/* Container que simula um App Mobile no Desktop */
-.onboarding-container, .app-container {
-    max-width: 480px;
-    margin: 0 auto;
-    background: var(--bg-light);
-    min-height: 100vh;
-    position: relative;
-    box-shadow: 0 0 50px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
+// 4. INTEGRAÇÃO COM API DE CLIMA
+async function getWeatherData(city) {
+    if (!WEATHER_API_KEY || WEATHER_API_KEY === "SUA_CHAVE_AQUI") {
+        console.warn("API Key do clima não configurada.");
+        return null;
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=pt_br&appid=${WEATHER_API_KEY}`
+        );
+        return await response.json();
+    } catch (error) {
+        console.error("Erro ao buscar clima:", error);
+        return null;
+    }
 }
 
-/* 2. ONBOARDING ESPECÍFICO */
-.onboarding-container {
-    padding: 40px 30px;
-    background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
+// 5. MOTOR DE DICAS INTELIGENTES
+function updatePetTip(weather) {
+    const tipElement = document.getElementById('dynamic-pet-tip');
+    const tempElement = document.getElementById('weather-temp');
+    const iconElement = document.getElementById('weather-icon');
+    const cityElement = document.getElementById('weather-city');
+
+    if (!weather || weather.cod !== 200) {
+        tipElement.innerText = `Mantenha a rotina de exercícios de ${userData.petName} em dia!`;
+        return;
+    }
+
+    const temp = Math.round(weather.main.temp);
+    const condition = weather.weather[0].main.toLowerCase();
+    
+    // Atualiza Widget
+    tempElement.innerText = `${temp}°C`;
+    cityElement.innerText = weather.name;
+    iconElement.src = `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`;
+    iconElement.style.display = 'block';
+
+    // Lógica de Dicas
+    let tip = "";
+
+    if (temp > 28) {
+        tip = `Está calor em ${weather.name} (${temp}°C). Evite passeios no asfalto quente com o(a) ${userData.petName} e reforce a água! ☀️`;
+    } else if (temp < 15) {
+        tip = `O frio chegou! Garanta que o(a) ${userData.petName} tenha um lugar aquecido para dormir hoje. ❄️`;
+    } else if (condition.includes('rain')) {
+        tip = `Cuidado com a chuva! Se o(a) ${userData.petName} se molhar, seque-o bem para evitar fungos ou resfriados. 🌧️`;
+    } else {
+        tip = `Clima agradável em ${weather.name}! Ótimo dia para um passeio no parque com o(a) ${userData.petName}. 🐾`;
+    }
+
+    tipElement.innerText = tip;
 }
 
-.progress-container {
-    width: 100%;
-    height: 6px;
-    background: rgba(0,0,0,0.05);
-    border-radius: 10px;
-    margin-bottom: 50px;
+// 6. INICIALIZAÇÃO DO APP ATUALIZADA
+function showApp(data) {
+    // ... (mesma lógica anterior de esconder onboarding e mostrar hub) ...
+    document.getElementById('onboarding-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    
+    document.getElementById('display-user-name').innerText = data.tutorName;
+    document.getElementById('display-pet-name').innerText = data.petName;
+    
+    // Chama a API de clima ao entrar no App
+    getWeatherData(data.city).then(weather => {
+        updatePetTip(weather);
+    });
+
+    lucide.createIcons();
 }
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-orange), var(--primary-green));
-    width: 14%; /* Dinâmico via JS */
-    border-radius: 10px;
-    transition: width 0.5s ease-in-out;
-}
-
-.step {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 80vh;
-    animation: slideIn 0.4s ease-out;
-}
-
-.step.active {
-    display: flex;
-}
-
-.step-content {
-    flex-grow: 1;
-}
-
-.step-content h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: var(--text-main);
-}
-
-.step-content p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-    margin-bottom: 30px;
-}
-
-.step-icon {
-    width: 60px !important;
-    height: 60px !important;
-    color: var(--primary-orange);
-    margin-bottom: 20px;
-}
-
-/* Inputs Onboarding */
-input[type="text"], input[type="number"] {
-    width: 100%;
-    border: 2px solid transparent;
-    background: white;
-    padding: 20px;
-    border-radius: var(--border-radius-md);
-    font-size: 1.1rem;
-    box-shadow: var(--shadow);
-    outline: none;
-    transition: var(--transition);
-}
-
-input:focus {
-    border-color: var(--primary-orange);
-    transform: translateY(-2px);
-}
-
-.age-input-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.age-input-container span {
-    font-weight: 600;
-    color: var(--text-muted);
-}
-
-/* Grid de Opções (Tipo de Pet / Sexo) */
-.option-grid {
-    display: grid;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.option-btn {
-    background: white;
-    border: 2px solid transparent;
-    padding: 20px;
-    border-radius: var(--border-radius-md);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-}
-
-.option-btn i {
-    color: var(--primary-green);
-}
-
-.option-btn.selected {
-    border-color: var(--primary-green);
-    background: #F0FFF4;
-}
-
-/* Photo Upload */
-.photo-upload-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.photo-preview {
-    width: 200px;
-    height: 200px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 4px solid white;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-
-.photo-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* 3. HUB PRINCIPAL (APP) */
-.main-header {
-    padding: 40px 24px 24px;
-}
-
-.user-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.greeting p { font-size: 0.85rem; color: var(--text-muted); }
-.greeting h2 { font-size: 1.5rem; font-weight: 700; }
-
-.pet-avatar {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    padding: 3px;
-    background: linear-gradient(45deg, var(--primary-orange), var(--primary-green));
-    box-shadow: var(--shadow);
-}
-
-.pet-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #eee;
-}
-
-.pet-profile span {
-    display: block;
-    text-align: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    margin-top: 4px;
-    text-transform: uppercase;
-}
-
-/* Card Dica do Dia */
-.daily-tip-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--border-radius-md);
-    padding: 18px;
-    box-shadow: var(--shadow);
-}
-
-.tip-content {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.tip-content i {
-    color: var(--primary-orange);
-    background: rgba(255, 140, 66, 0.1);
-    padding: 12px;
-    border-radius: 15px;
-}
-
-.tip-content p { font-size: 0.85rem; line-height: 1.4; }
-
-/* Estrutura de Seções */
-.module-section {
-    padding: 24px 0 0 24px;
-}
-
-.section-title {
-    font-size: 1.1rem;
-    margin-bottom: 16px;
-    font-weight: 700;
-}
-
-/* Scroll Horizontal (Netflix Style) */
-.horizontal-scroll {
-    display: flex;
-    gap: 16px;
-    overflow-x: auto;
-    padding-right: 24px;
-    scrollbar-width: none;
-}
-
-.horizontal-scroll::-webkit-scrollbar { display: none; }
-
-.card {
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-}
-
-.card:active { transform: scale(0.95); }
-
-.featured {
-    min-width: 210px;
-    height: 260px;
-    border-radius: var(--border-radius-md);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    color: white;
-    overflow: hidden;
-}
-
-.featured.orange { background: linear-gradient(135deg, #FF8C42, #FFB382); }
-.featured.green { background: linear-gradient(135deg, #4CAF50, #81C784); }
-
-.card-icon {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 50px !important;
-    height: 50px !important;
-    opacity: 0.2;
-}
-
-.badge {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    background: rgba(255,255,255,0.25);
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    backdrop-filter: blur(5px);
-}
-
-/* Grid Layout para Itens Menores */
-.grid-layout {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    padding-right: 24px;
-}
-
-.glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--border-radius-md);
-    padding: 20px;
-    text-align: center;
-    box-shadow: var(--shadow);
-}
-
-.glass-card i {
-    margin-bottom: 10px;
-    color: var(--primary-green);
-}
-
-.glass-card h4 { font-size: 0.9rem; }
-
-/* 4. BOTÕES E NAVEGAÇÃO */
-.btn-next, .btn-primary-finish, .btn-primary {
-    background: var(--primary-orange);
-    color: white;
-    border: none;
-    padding: 18px;
-    border-radius: 20px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(255, 140, 66, 0.3);
-    transition: var(--transition);
-}
-
-.btn-next:hover, .btn-primary-finish:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 25px rgba(255, 140, 66, 0.4);
-}
-
-.btn-secondary, .btn-back, .btn-skip {
-    background: transparent;
-    color: var(--text-muted);
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 10px;
-}
-
-/* Barra de Navegação Inferior */
-.bottom-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 40px);
-    max-width: 440px;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    height: 75px;
-    border-radius: 40px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    border: 1px solid rgba(255,255,255,0.5);
-    z-index: 100;
-}
-
-.nav-item {
-    border: none;
-    background: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-muted);
-    cursor: pointer;
-}
-
-.nav-item.active { color: var(--primary-orange); }
-.nav-item span { font-size: 0.65rem; font-weight: 700; margin-top: 4px; }
-
-/* 5. MODAL */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.3);
-    backdrop-filter: blur(4px);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.modal-content {
-    background: white;
-    width: 100%;
-    max-width: 380px;
-    border-radius: var(--border-radius-lg);
-    padding: 40px 30px;
-    text-align: center;
-    animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.modal-main-icon {
-    width: 70px !important;
-    height: 70px !important;
-    color: var(--primary-orange);
-    margin-bottom: 20px;
-}
-
-/* 6. ANIMAÇÕES */
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes modalPop {
-    from { opacity: 0; transform: scale(0.8); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Helpers */
-.pb-100 { padding-bottom: 120px; }
-.text-orange { color: var(--primary-orange) !important; }
