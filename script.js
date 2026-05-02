@@ -1,42 +1,36 @@
-// Substitua pela sua chave da OpenWeatherMap para funcionar o clima real
-const API_KEY = "9b6a494a664d8bda6c455e15dff42127"; 
-
 let currentStep = 1;
-const totalSteps = 8;
-let userData = {
+const totalSteps = 7;
+const userData = {
     tutorName: '',
     petName: '',
     type: '',
     sex: '',
     age: '',
-    city: '',
     photo: ''
 };
 
-// 1. Inicialização
+// Verifica se já existe dados ao carregar
 document.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('petcare_pro_data');
-    if (saved) {
-        userData = JSON.parse(saved);
-        showApp();
+    const savedData = localStorage.getItem('petCare_data');
+    if (savedData) {
+        showApp(JSON.parse(savedData));
     }
 });
 
-// 2. Navegação Onboarding
 function nextStep() {
     if (currentStep === 1) {
         userData.tutorName = document.getElementById('input-tutor-name').value;
-        if (!userData.tutorName) return alert("Como te chamamos?");
+        if(!userData.tutorName) return alert("Como podemos te chamar?");
     }
+    
     if (currentStep === 2) {
         userData.petName = document.getElementById('input-pet-name').value;
-        if (!userData.petName) return alert("Qual o nome do pet?");
+        if(!userData.petName) return alert("Qual o nome do seu pet?");
         updateDynamicNames();
     }
-    if (currentStep === 5) userData.age = document.getElementById('input-pet-age').value;
-    if (currentStep === 6) {
-        userData.city = document.getElementById('input-city').value;
-        if (!userData.city) return alert("Sua cidade é importante para as dicas!");
+
+    if (currentStep === 5) {
+        userData.age = document.getElementById('input-pet-age').value;
     }
 
     if (currentStep < totalSteps) {
@@ -53,82 +47,80 @@ function prevStep() {
 }
 
 function updateStepUI() {
-    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    // Esconde todos os passos
+    document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+    // Mostra o passo atual
     document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+    // Atualiza barra de progresso
     const progress = (currentStep / totalSteps) * 100;
     document.getElementById('progress-bar').style.width = `${progress}%`;
 }
 
-function selectOption(field, value, btn) {
+function selectOption(field, value, element) {
     userData[field] = value;
-    btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    setTimeout(nextStep, 400);
+    
+    // UI Feedback
+    const parent = element.parentElement;
+    parent.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+    element.classList.add('selected');
+
+    // Auto-advance em seleções de botão
+    setTimeout(nextStep, 300);
 }
 
 function updateDynamicNames() {
-    document.querySelectorAll('.dynamic-pet-name').forEach(el => el.innerText = userData.petName);
+    document.querySelectorAll('.dynamic-pet-name').forEach(el => {
+        el.innerText = userData.petName;
+    });
 }
 
-// 3. Foto Upload
+// Handle Photo Upload
 document.getElementById('pet-photo-input').addEventListener('change', function(e) {
     const reader = new FileReader();
     reader.onload = function() {
         userData.photo = reader.result;
-        document.getElementById('photo-preview').innerHTML = `<img src="${reader.result}">`;
+        const preview = document.getElementById('photo-preview');
+        preview.innerHTML = `<img src="${reader.result}">`;
     }
     reader.readAsDataURL(e.target.files[0]);
 });
 
-// 4. Clima e Dicas Inteligentes
-async function fetchWeather(city) {
-    if (!API_KEY || API_KEY === "9b6a494a664d8bda6c455e15dff42127") return null;
-    try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=pt_br&appid=${API_KEY}`);
-        return await res.json();
-    } catch (e) { return null; }
-}
-
-function generateTip(weather) {
-    const tipEl = document.getElementById('dynamic-pet-tip');
-    if (!weather || weather.cod !== 200) {
-        tipEl.innerText = `Lembre-se de conferir a água do(a) ${userData.petName} hoje!`;
-        return;
-    }
-
-    const temp = Math.round(weather.main.temp);
-    document.getElementById('weather-temp').innerText = `${temp}°C`;
-    document.getElementById('weather-city').innerText = weather.name;
-    document.getElementById('weather-icon').src = `https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`;
-    document.getElementById('weather-icon').style.display = 'block';
-
-    if (temp > 28) tipEl.innerText = `Está calor em ${weather.name}! Evite passeios longos com o(a) ${userData.petName} agora. ☀️`;
-    else if (temp < 15) tipEl.innerText = `Clima frio em ${weather.name}. Garanta que o(a) ${userData.petName} esteja aquecido. ❄️`;
-    else tipEl.innerText = `Clima ótimo em ${weather.name}! Que tal um passeio com o(a) ${userData.petName}? 🐾`;
-}
-
-// 5. Finalização
 function finishOnboarding() {
-    localStorage.setItem('petcare_pro_data', JSON.stringify(userData));
-    showApp();
+    localStorage.setItem('petCare_data', JSON.stringify(userData));
+    showApp(userData);
 }
 
-function showApp() {
+function showApp(data) {
     document.getElementById('onboarding-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'block';
-    document.getElementById('display-user-name').innerText = userData.tutorName;
-    document.getElementById('display-pet-name').innerText = userData.petName;
-    if (userData.photo) document.getElementById('display-pet-photo').src = userData.photo;
+    
+    // Atualiza o Hub com dados reais
+    document.getElementById('display-user-name').innerText = data.tutorName;
+    document.getElementById('display-pet-name').innerText = data.petName;
+    
+    const petImg = document.getElementById('display-pet-photo');
+    if(data.photo) {
+        petImg.src = data.photo;
+    } else {
+        petImg.src = 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=100&h=100&auto=format&fit=crop';
+    }
     
     updateDynamicNames();
-    fetchWeather(userData.city).then(generateTip);
     lucide.createIcons();
 }
 
-// 6. Funções de Módulos
-function openModule(title) {
-    document.getElementById('modal-title').innerText = title;
+// Funções do Hub (Modal)
+function openModule(name) {
+    document.getElementById('modal-title').innerText = name;
     document.getElementById('module-modal').style.display = 'flex';
 }
-function closeModal() { document.getElementById('module-modal').style.display = 'none'; }
-function resetApp() { localStorage.clear(); location.reload(); }
+
+function closeModal() {
+    document.getElementById('module-modal').style.display = 'none';
+}
+
+// Função de Reset (Para testes)
+function resetApp() {
+    localStorage.clear();
+    location.reload();
+}
