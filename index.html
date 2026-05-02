@@ -3,27 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PetCare App | Premium Hub</title>
+    <title>PetCare App | Premium Experience</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Header Section -->
+    <!-- ONBOARDING FLOW -->
+    <div id="onboarding-screen" class="onboarding-container">
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <!-- Step 1: Tutor Name -->
+        <div class="step active" data-step="1">
+            <div class="step-content">
+                <i data-lucide="user" class="step-icon"></i>
+                <h1>Como podemos te chamar?</h1>
+                <p>Queremos personalizar sua experiência.</p>
+                <input type="text" id="input-tutor-name" placeholder="Seu nome aqui..." autocomplete="off">
+            </div>
+            <button class="btn-next" onclick="nextStep()">Continuar</button>
+        </div>
+
+        <!-- Step 2: Pet Name -->
+        <div class="step" data-step="2">
+            <div class="step-content">
+                <i data-lucide="heart" class="step-icon text-orange"></i>
+                <h1>Qual é o nome do seu pet?</h1>
+                <p>Pode ser um apelido carinhoso também!</p>
+                <input type="text" id="input-pet-name" placeholder="Nome do pet..." autocomplete="off">
+            </div>
+            <div class="step-footer">
+                <button class="btn-back" onclick="prevStep()">Voltar</button>
+                <button class="btn-next" onclick="nextStep()">Próximo</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Pet Type -->
+        <div class="step" data-step="3">
+            <div class="step-content">
+                <h1>O <span class="dynamic-pet-name">pet</span> é um...</h1>
+                <div class="option-grid">
+                    <button class="option-btn" onclick="selectOption('type', 'Cachorro', this)">
+                        <i data-lucide="dog"></i> Cachorro
+                    </button>
+                    <button class="option-btn" onclick="selectOption('type', 'Gato', this)">
+                        <i data-lucide="cat"></i> Gato
+                    </button>
+                    <button class="option-btn" onclick="selectOption('type', 'Outro', this)">
+                        <i data-lucide="shrub"></i> Outro
+                    </button>
+                </div>
+            </div>
+            <button class="btn-back" onclick="prevStep()">Voltar</button>
+        </div>
+
+        <!-- Step 4: Sex -->
+        <div class="step" data-step="4">
+            <div class="step-content">
+                <h1>Qual o sexo do(a) <span class="dynamic-pet-name">pet</span>?</h1>
+                <div class="option-grid">
+                    <button class="option-btn" onclick="selectOption('sex', 'Macho', this)">
+                        <i data-lucide="mars"></i> Macho
+                    </button>
+                    <button class="option-btn" onclick="selectOption('sex', 'Fêmea', this)">
+                        <i data-lucide="venus"></i> Fêmea
+                    </button>
+                </div>
+            </div>
+            <button class="btn-back" onclick="prevStep()">Voltar</button>
+        </div>
+
+        <!-- Step 5: Age -->
+        <div class="step" data-step="5">
+            <div class="step-content">
+                <h1>Quantos anos o(a) <span class="dynamic-pet-name">pet</span> tem?</h1>
+                <p>Isso nos ajuda a calcular o Life Score.</p>
+                <div class="age-input-container">
+                    <input type="number" id="input-pet-age" placeholder="0" min="0">
+                    <span>anos</span>
+                </div>
+            </div>
+            <button class="btn-next" onclick="nextStep()">Continuar</button>
+        </div>
+
+        <!-- Step 6: Photo -->
+        <div class="step" data-step="6">
+            <div class="step-content">
+                <h1>Uma foto do(a) <span class="dynamic-pet-name">pet</span></h1>
+                <p>Deixe o app com a cara dele(a)!</p>
+                
+                <div class="photo-upload-wrapper">
+                    <div class="photo-preview" id="photo-preview">
+                        <i data-lucide="camera"></i>
+                    </div>
+                    <input type="file" id="pet-photo-input" hidden accept="image/*">
+                    <button class="btn-secondary" onclick="document.getElementById('pet-photo-input').click()">Escolher Foto</button>
+                </div>
+            </div>
+            <div class="step-footer">
+                <button class="btn-back" onclick="prevStep()">Voltar</button>
+                <button class="btn-next" onclick="nextStep()">Finalizar</button>
+                <button class="btn-skip" onclick="nextStep()">Pular por enquanto</button>
+            </div>
+        </div>
+
+        <!-- Step 7: Final -->
+        <div class="step" data-step="7">
+            <div class="step-content center">
+                <div class="success-icon">🐾</div>
+                <h1>Tudo pronto!</h1>
+                <p>Vamos cuidar melhor do(a) <span class="dynamic-pet-name">pet</span> juntos.</p>
+            </div>
+            <button class="btn-primary-finish" onclick="finishOnboarding()">Começar Agora</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP HUB (Hidden by default) -->
+    <div id="app-screen" class="app-container" style="display: none;">
         <header class="main-header">
             <div class="user-info">
                 <div class="greeting">
                     <p>Bem-vinda de volta,</p>
-                    <h2 id="user-name">Ana Martins</h2>
+                    <h2 id="display-user-name">Ana Martins</h2>
                 </div>
                 <div class="pet-profile">
                     <div class="pet-avatar">
-                        <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=100&h=100" alt="Pet Avatar">
+                        <img id="display-pet-photo" src="" alt="Pet">
                     </div>
-                    <span id="pet-name">Thor</span>
+                    <span id="display-pet-name">Thor</span>
                 </div>
             </div>
 
@@ -32,94 +142,47 @@
                     <i data-lucide="sparkles"></i>
                     <div>
                         <small>Dica do dia</small>
-                        <p>Mantenha a hidratação do Thor em dias quentes. Adicione cubos de gelo na água!</p>
+                        <p>Mantenha a hidratação do <span class="dynamic-pet-name">pet</span> em dias quentes!</p>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content (Hub) -->
         <main class="hub-content">
-            
-            <!-- Section: Destaques (Estilo Netflix) -->
+            <!-- Seções do Hub (Mesma estrutura do código anterior) -->
             <section class="module-section">
                 <h3 class="section-title">🔥 Destaques</h3>
                 <div class="horizontal-scroll">
                     <div class="card featured orange" onclick="openModule('Viagem com Pet')">
                         <div class="badge">Novo</div>
                         <i data-lucide="plane" class="card-icon"></i>
-                        <div class="card-info">
-                            <h4>Viagem com Pet</h4>
-                            <p>Checklist e documentos para voos e hotéis.</p>
-                        </div>
+                        <div class="card-info"><h4>Viagem</h4><p>Checklist completo</p></div>
                     </div>
                     <div class="card featured green" onclick="openModule('Adestre seu Pet')">
                         <div class="badge">Popular</div>
                         <i data-lucide="dog" class="card-icon"></i>
-                        <div class="card-info">
-                            <h4>Adestre seu Pet</h4>
-                            <p>Vídeos e comandos básicos de comportamento.</p>
-                        </div>
-                    </div>
-                    <div class="card featured danger" onclick="openModule('Emergência')">
-                        <div class="badge">Essencial</div>
-                        <i data-lucide="ambulance" class="card-icon"></i>
-                        <div class="card-info">
-                            <h4>Emergência</h4>
-                            <p>Contatos rápidos e primeiros socorros.</p>
-                        </div>
+                        <div class="card-info"><h4>Adestramento</h4><p>Vídeos práticos</p></div>
                     </div>
                 </div>
             </section>
 
-            <!-- Section: Dia a Dia -->
             <section class="module-section">
                 <h3 class="section-title">📦 Para o dia a dia</h3>
                 <div class="grid-layout">
                     <div class="card glass-card" onclick="openModule('Rotina')">
                         <i data-lucide="calendar-check"></i>
                         <h4>Rotina</h4>
-                        <p>Passeios e sono</p>
-                    </div>
-                    <div class="card glass-card" onclick="openModule('Humor')">
-                        <i data-lucide="smile"></i>
-                        <h4>Humor</h4>
-                        <p>Diário emocional</p>
                     </div>
                     <div class="card glass-card" onclick="openModule('Alimentação')">
                         <i data-lucide="utensils"></i>
                         <h4>Alimentação</h4>
-                        <p>Controle de peso</p>
                     </div>
                 </div>
             </section>
 
-            <!-- Section: Inteligência Pet -->
-            <section class="module-section">
-                <h3 class="section-title">🧠 Inteligência Pet</h3>
-                <div class="grid-layout">
-                    <div class="card glass-card" onclick="openModule('Comportamento')">
-                        <i data-lucide="brain"></i>
-                        <h4>Comportamento</h4>
-                        <p>Análise de IA</p>
-                    </div>
-                    <div class="card glass-card" onclick="openModule('Life Score')">
-                        <i data-lucide="activity"></i>
-                        <h4>Life Score</h4>
-                        <p>Saúde geral</p>
-                        <div class="badge mini">Beta</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section: Organização -->
             <section class="module-section pb-100">
                 <h3 class="section-title">📋 Organização</h3>
                 <div class="grid-layout">
-                    <div class="card glass-card" onclick="openModule('Vacinas')">
-                        <i data-lucide="syringe"></i>
-                        <h4>Vacinas</h4>
-                    </div>
                     <div class="card glass-card" onclick="openModule('Saúde')">
                         <i data-lucide="heart-pulse"></i>
                         <h4>Saúde</h4>
@@ -130,48 +193,28 @@
                     </div>
                 </div>
             </section>
-
         </main>
 
-        <!-- Bottom Navigation -->
         <nav class="bottom-nav">
-            <button class="nav-item active">
-                <i data-lucide="layout-grid"></i>
-                <span>Início</span>
-            </button>
-            <button class="nav-item" onclick="openModule('Financeiro')">
-                <i data-lucide="wallet"></i>
-                <span>Finanças</span>
-            </button>
-            <button class="nav-item" onclick="openModule('Perfil')">
-                <i data-lucide="user"></i>
-                <span>Perfil</span>
-            </button>
+            <button class="nav-item active"><i data-lucide="layout-grid"></i><span>Início</span></button>
+            <button class="nav-item" onclick="openModule('Financeiro')"><i data-lucide="wallet"></i><span>Finanças</span></button>
+            <button class="nav-item" onclick="resetApp()"> <i data-lucide="refresh-ccw"></i><span>Reset</span></button>
         </nav>
+    </div>
 
-        <!-- Placeholder Modal -->
-        <div id="module-modal" class="modal">
-            <div class="modal-content glass">
-                <div class="modal-header">
-                    <i data-lucide="puzzle" class="modal-main-icon"></i>
-                    <h2 id="modal-title">Módulo</h2>
-                    <p id="modal-desc">Este é um módulo premium do PetCare App.</p>
-                </div>
-                <div class="modal-body">
-                    <div class="placeholder-animation"></div>
-                    <p>Estamos preparando os detalhes para você e seu pet.</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-primary" onclick="closeModal()">Conectar Módulo</button>
-                    <button class="btn-secondary" onclick="closeModal()">Voltar</button>
-                </div>
+    <!-- Modal Placeholder -->
+    <div id="module-modal" class="modal">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <i data-lucide="puzzle" class="modal-main-icon"></i>
+                <h2 id="modal-title">Módulo</h2>
+                <p id="modal-desc">Funcionalidade em breve.</p>
             </div>
+            <button class="btn-primary" onclick="closeModal()">Entendido</button>
         </div>
     </div>
 
     <script src="script.js"></script>
-    <script>
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
